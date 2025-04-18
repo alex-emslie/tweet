@@ -1,28 +1,51 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PostProps } from '../types';
+import { toggleLike, getLikeCount, isLikedByUser } from '../actions/post';
 
 export default function Post({ 
+  id,
   author, 
   content, 
   timestamp, 
-  likes: initialLikes, 
   size = 'large',
   showReplyButton = false,
-  onReply
+  onReply,
+  currentUserId
 }: PostProps) {
-  const [likes, setLikes] = useState(initialLikes);
+  const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLike = () => {
-    if (isLiked) {
-      setLikes(likes - 1);
-    } else {
-      setLikes(likes + 1);
+  useEffect(() => {
+    const fetchLikeData = async () => {
+      if (id && currentUserId) {
+        const [likeCount, liked] = await Promise.all([
+          getLikeCount(id),
+          isLikedByUser(id, currentUserId)
+        ]);
+        setLikes(likeCount);
+        setIsLiked(liked);
+      }
+    };
+    fetchLikeData();
+  }, [id, currentUserId]);
+
+  const handleLike = async () => {
+    if (!id || !currentUserId || isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      const newIsLiked = await toggleLike(id, currentUserId);
+      setIsLiked(newIsLiked);
+      setLikes(prev => newIsLiked ? prev + 1 : prev - 1);
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLiked(!isLiked);
   };
 
   const avatarSize = size === 'small' ? 32 : 48;
@@ -51,9 +74,10 @@ export default function Post({
         <div className="mt-3 flex items-center space-x-4">
           <button
             onClick={handleLike}
+            disabled={isLoading}
             className={`flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors ${
               isLiked ? 'text-red-500' : ''
-            }`}
+            } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <svg
               className={iconSize}
