@@ -72,4 +72,19 @@ export async function getPost(postId: string) {
     },
   });
   return post;
+}
+
+export async function createReply(parentId: string, content: string, authorId: string) {
+  const reply = await prisma.post.create({
+    data: {
+      content,
+      authorId,
+      parentId,
+    },
+    include: {
+      author: true,
+      likes: true,
+    },
+  });
+  return reply;
 } 

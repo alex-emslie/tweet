@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/app/lib/prisma';
 import bcrypt from 'bcryptjs';
-import { prisma } from '../../../lib/prisma';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, email, password } = await req.json();
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -40,11 +40,11 @@ export async function POST(request: Request) {
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
 
-    return NextResponse.json(userWithoutPassword, { status: 201 });
+    return NextResponse.json(userWithoutPassword);
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json(
-      { error: 'Something went wrong' },
+      { error: 'Error creating user' },
       { status: 500 }
     );
   }
