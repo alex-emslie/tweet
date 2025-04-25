@@ -87,4 +87,20 @@ export async function createReply(parentId: string, content: string, authorId: s
     },
   });
   return reply;
+}
+
+export async function getReplies(postId: string) {
+  const replies = await prisma.post.findMany({
+    where: {
+      parentId: postId,
+    },
+    include: {
+      author: true,
+      likes: true,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+  return replies;
 } 

@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { PostProps } from '../types';
-import { toggleLike, getLikeCount, isLikedByUser } from '../actions/post';
+import { toggleLike, getLikeCount, isLikedByUser, getReplies } from '../actions/post';
+import Reply from './Reply';
 
 export default function Post({ 
   id,
@@ -18,6 +19,9 @@ export default function Post({
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showThread, setShowThread] = useState(false);
+  const [replies, setReplies] = useState<any[]>([]);
+  const [isLoadingReplies, setIsLoadingReplies] = useState(false);
 
   useEffect(() => {
     const fetchLikeData = async () => {
@@ -45,6 +49,23 @@ export default function Post({
       console.error('Failed to toggle like:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleShowThread = async () => {
+    if (!id || isLoadingReplies) return;
+    
+    setIsLoadingReplies(true);
+    try {
+      if (!showThread) {
+        const fetchedReplies = await getReplies(id);
+        setReplies(fetchedReplies);
+      }
+      setShowThread(!showThread);
+    } catch (error) {
+      console.error('Failed to fetch replies:', error);
+    } finally {
+      setIsLoadingReplies(false);
     }
   };
 
@@ -110,6 +131,23 @@ export default function Post({
               <span className={textSize}>Reply</span>
             </button>
           )}
+          <button
+            onClick={handleShowThread}
+            disabled={isLoadingReplies}
+            className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 transition-colors"
+          >
+            <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+              />
+            </svg>
+            <span className={textSize}>
+              {isLoadingReplies ? 'Loading...' : showThread ? 'Hide Thread' : 'Show Thread'}
+            </span>
+          </button>
           {size === 'large' && (
             <button className="flex items-center space-x-1 text-gray-500 hover:text-green-500 transition-colors">
               <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,6 +162,19 @@ export default function Post({
             </button>
           )}
         </div>
+        {showThread && replies.length > 0 && (
+          <div className="mt-4 space-y-4 border-l-2 border-gray-200 pl-4">
+            {replies.map((reply) => (
+              <Reply 
+                key={reply.id} 
+                {...reply} 
+                showReplyButton={showReplyButton}
+                onReply={onReply}
+                currentUserId={currentUserId}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

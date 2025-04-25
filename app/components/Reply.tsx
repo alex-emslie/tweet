@@ -5,7 +5,13 @@ import { PostData } from '../types';
 import { useState } from 'react';
 import ReplyForm from './ReplyForm';
 
-export default function Reply(props: PostData) {
+interface ReplyProps extends PostData {
+  showReplyButton?: boolean;
+  onReply?: () => void;
+  currentUserId?: string;
+}
+
+export default function Reply(props: ReplyProps) {
   const [showReplyForm, setShowReplyForm] = useState(false);
 
   const handleReply = () => {
@@ -21,8 +27,9 @@ export default function Reply(props: PostData) {
       <Post 
         {...props} 
         size="small" 
-        showReplyButton={true}
+        showReplyButton={props.showReplyButton}
         onReply={handleReply}
+        currentUserId={props.currentUserId}
       />
       {showReplyForm && (
         <div className="mt-2 ml-8">
