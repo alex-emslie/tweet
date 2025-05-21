@@ -8,8 +8,11 @@ export interface PostData {
   id: string;
   author: Author;
   content: string;
-  timestamp: string;
+  createdAt: string;
   likes: number;
+  image?: string;
+  replies?: PostData[];
+  isLiked?: boolean;
 }
 
 export interface PostProps {

@@ -11,3 +11,11 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
 }
+
+@layer components {
+  .btn {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 0;
+  }
+}
