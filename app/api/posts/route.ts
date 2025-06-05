@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+
     const posts = await prisma.post.findMany({
+      where: userId ? {
+        authorId: userId,
+      } : undefined,
       include: {
         author: {
           select: {
