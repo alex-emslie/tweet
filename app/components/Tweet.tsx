@@ -1,12 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Post from './Post';
-import Reply from './Reply';
+import { useState } from 'react';
 import { PostData } from '../types';
 import { useSession } from 'next-auth/react';
-import { createPost, createReply } from '../actions/post';
+import { createReply } from '../actions/post';
 
 interface TweetProps extends PostData {
   showReplyButton?: boolean;
@@ -24,30 +21,12 @@ function formatDate(date: string | Date) {
 export default function Tweet(props: TweetProps) {
   const [showReply, setShowReply] = useState(false);
   const [replyText, setReplyText] = useState('');
-  const [replies, setReplies] = useState<PostData[]>([]);
-  const [postId, setPostId] = useState<string | null>(null);
+  const [replies, setReplies] = useState<PostData[]>(props.replies || []);
   const { data: session } = useSession();
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(props.likes || 0);
   const [showReplies, setShowReplies] = useState(true);
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
-
-  console.log('Tweet props:', props);
-  console.log('Tweet showReplyButton:', props.showReplyButton);
-
-  useEffect(() => {
-    const createParentPost = async () => {
-      if (session?.user?.id && !postId) {
-        try {
-          const post = await createPost(props.content, session.user.id);
-          setPostId(post.id);
-        } catch (error) {
-          console.error('Failed to create parent post:', error);
-        }
-      }
-    };
-    createParentPost();
-  }, [session?.user?.id, props.content, postId]);
 
   const handleReply = (replyId?: string) => {
     if (props.currentUserId) {
@@ -58,9 +37,9 @@ export default function Tweet(props: TweetProps) {
 
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (replyText.trim() && props.currentUserId && postId) {
+    if (replyText.trim() && props.currentUserId) {
       try {
-        const reply = await createReply(postId, replyText, props.currentUserId);
+        const reply = await createReply(props.id, replyText, props.currentUserId);
         const newReply: PostData = {
           id: reply.id,
           author: {
@@ -71,11 +50,9 @@ export default function Tweet(props: TweetProps) {
           content: replyText,
           createdAt: new Date().toISOString(),
           likes: 0,
-          isLiked: false,
-          replyingTo: replyingToId || null
+          replies: []
         };
 
-        // Always add as a top-level reply
         setReplies([...replies, newReply]);
         setReplyText('');
         setShowReply(false);
@@ -138,25 +115,18 @@ export default function Tweet(props: TweetProps) {
             <span className="tweet-timestamp text-gray-500">· {formatDate(props.createdAt)}</span>
           </div>
           <p className="tweet-text mt-1">{props.content}</p>
-          {props.image && (
-            <div className="tweet-image mt-3">
-              <img
-                src={props.image}
-                alt="Post image"
-                className="rounded-lg max-h-96 w-full object-cover"
-              />
-            </div>
-          )}
           <div className="tweet-actions flex items-center gap-6 mt-3">
-            <button 
-              onClick={() => handleReply()}
-              className="tweet-reply-button flex items-center gap-2 text-gray-500 hover:text-blue-500"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <span>{replies.length}</span>
-            </button>
+            {props.showReplyButton && (
+              <button 
+                onClick={() => handleReply()}
+                className="tweet-reply-button flex items-center gap-2 text-gray-500 hover:text-blue-500"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span>{replies.length}</span>
+              </button>
+            )}
             <button 
               onClick={handleLike}
               className={`tweet-like-button flex items-center gap-2 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
@@ -185,57 +155,23 @@ export default function Tweet(props: TweetProps) {
                 <span className="tweet-reply-author font-bold">{reply.author.name}</span>
                 <span className="tweet-reply-handle text-gray-500">@{reply.author.handle}</span>
                 <span className="tweet-reply-timestamp text-gray-500">· {formatDate(reply.createdAt)}</span>
-                {reply.replyingTo && (
-                  <span className="tweet-reply-to text-gray-500">
-                    · replying to @{replies.find(r => r.id === reply.replyingTo)?.author.handle || 'unknown'}
-                  </span>
-                )}
               </div>
               <p className="tweet-reply-content mt-1">{reply.content}</p>
               <div className="tweet-reply-actions flex items-center gap-6 mt-3">
-                <button 
-                  onClick={() => handleReply(reply.id)}
-                  className="tweet-reply-button flex items-center gap-2 text-gray-500 hover:text-blue-500"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                  <span>Reply</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    const updatedReplies = replies.map(r => 
-                      r.id === reply.id 
-                        ? { ...r, likes: (r.likes || 0) + 1, isLiked: !r.isLiked }
-                        : r
-                    );
-                    setReplies(updatedReplies);
-                  }}
-                  className={`tweet-like-button flex items-center gap-2 ${reply.isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
-                >
-                  <svg className="w-4 h-4" fill={reply.isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                  <span>{reply.likes || 0}</span>
-                </button>
+                {props.showReplyButton && (
+                  <button 
+                    onClick={() => handleReply(reply.id)}
+                    className="tweet-reply-button flex items-center gap-2 text-gray-500 hover:text-blue-500"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <span>{reply.replies?.length || 0}</span>
+                  </button>
+                )}
               </div>
-              {replyingToId === reply.id && showReply && renderReplyForm(true)}
             </div>
           ))}
-          <button 
-            onClick={() => setShowReplies(!showReplies)}
-            className="tweet-collapse-thread mt-2 text-gray-500 hover:text-blue-500 flex items-center gap-1"
-          >
-            <svg 
-              className={`w-4 h-4 transition-transform ${showReplies ? 'rotate-180' : ''}`} 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-            </svg>
-            <span>{showReplies ? 'Collapse Thread' : 'Show Thread'}</span>
-          </button>
         </div>
       )}
     </div>
