@@ -74,12 +74,12 @@ export async function getPost(postId: string) {
   return post;
 }
 
-export async function createReply(parentId: string, content: string, authorId: string) {
+export async function createReply(replyToId: string, content: string, authorId: string) {
   const reply = await prisma.post.create({
     data: {
       content,
       authorId,
-      parentId,
+      replyToId,
     },
     include: {
       author: true,
@@ -92,7 +92,7 @@ export async function createReply(parentId: string, content: string, authorId: s
 export async function getReplies(postId: string) {
   const replies = await prisma.post.findMany({
     where: {
-      parentId: postId,
+      replyToId: postId,
     },
     include: {
       author: true,
