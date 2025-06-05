@@ -13,6 +13,7 @@ export interface PostData {
   image?: string;
   replies?: PostData[];
   isLiked?: boolean;
+  replyingTo?: string | null;
 }
 
 export interface PostProps {
