@@ -1,6 +1,6 @@
 import { PostData } from './types';
 
-const mockAuthors = [
+export const mockAuthors = [
   {
     name: 'John Doe',
     handle: 'johndoe',
@@ -12,93 +12,81 @@ const mockAuthors = [
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane'
   },
   {
-    name: 'Alex Johnson',
-    handle: 'alexj',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex'
-  },
-  {
-    name: 'Sarah Wilson',
-    handle: 'sarahw',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'
-  },
-  {
-    name: 'Mike Brown',
-    handle: 'mikeb',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike'
+    name: 'Bob Johnson',
+    handle: 'bobjohnson',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob'
   }
 ];
 
-const mockPosts: PostData[] = [
+export const mockPosts: PostData[] = [
   {
     id: '1',
     author: mockAuthors[0],
     content: 'Just launched my new website! Check it out and let me know what you think. #webdev #coding',
-    timestamp: '2h',
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     likes: 42
   },
   {
     id: '2',
     author: mockAuthors[1],
     content: 'Beautiful day for a hike! 🏔️ #nature #outdoors',
-    timestamp: '3h',
+    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     likes: 28
   },
   {
     id: '3',
     author: mockAuthors[2],
-    content: 'Working on some exciting new features for our app. Can\'t wait to share more details soon! 💻 #tech #development',
-    timestamp: '5h',
+    content: 'Just finished reading an amazing book. Highly recommend! 📚',
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     likes: 15
   },
   {
     id: '4',
     author: mockAuthors[3],
     content: 'Just finished reading "The Pragmatic Programmer". Highly recommend it to all developers out there! 📚 #programming #books',
-    timestamp: '1d',
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     likes: 56
   },
   {
     id: '5',
     author: mockAuthors[4],
     content: 'Who else is excited for the new season of their favorite show? 🎬 #entertainment',
-    timestamp: '2d',
+    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     likes: 33
   },
   {
     id: '6',
     author: mockAuthors[0],
     content: 'Just completed a 10km run! Feeling great and ready to tackle the day. 🏃‍♂️ #fitness #running',
-    timestamp: '3d',
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     likes: 47
   },
   {
     id: '7',
     author: mockAuthors[1],
     content: 'Trying out a new recipe for dinner tonight. Wish me luck! 🍳 #cooking #foodie',
-    timestamp: '4d',
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     likes: 22
   },
   {
     id: '8',
     author: mockAuthors[2],
     content: 'Just deployed a major update to our production environment. Everything is running smoothly! 🚀 #devops #deployment',
-    timestamp: '5d',
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     likes: 38
   },
   {
     id: '9',
     author: mockAuthors[3],
     content: 'Attending a great tech conference today. So many interesting talks and amazing people! 🎤 #tech #conference',
-    timestamp: '6d',
+    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
     likes: 29
   },
   {
     id: '10',
     author: mockAuthors[4],
     content: 'Finally got my hands on the new gaming console. Time to dive into some epic adventures! 🎮 #gaming',
-    timestamp: '1w',
+    createdAt: new Date(Date.now() - 7 * 7 * 24 * 60 * 60 * 1000).toISOString(),
     likes: 64
   }
-];
-
-export { mockPosts, mockAuthors }; 
+]; 
