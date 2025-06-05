@@ -1,19 +1,26 @@
 'use client';
 
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 
 export default function Header() {
+  const { data: session } = useSession();
+
   return (
     <header className="sticky top-0 z-20 bg-white border-b border-gray-200">
       <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Image
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=You"
-            alt="Your avatar"
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
+          {session?.user?.image ? (
+            <Image
+              src={session.user.image}
+              alt="Your avatar"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+          ) : (
+            <div className="w-8 h-8 bg-gray-200 rounded-full" />
+          )}
           <h1 className="text-xl font-bold text-gray-900">Home</h1>
         </div>
         <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">

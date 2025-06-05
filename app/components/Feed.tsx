@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Tweet from './Tweet';
 import { PostData } from '../types';
 import { useSession } from 'next-auth/react';
-import { fetchFeedData } from '../lib/api';
 
 export default function Feed() {
   const [posts, setPosts] = useState<PostData[]>([]);
@@ -14,8 +13,12 @@ export default function Feed() {
   useEffect(() => {
     const loadFeed = async () => {
       try {
-        const feedData = await fetchFeedData();
-        setPosts(feedData);
+        const response = await fetch('/api/posts');
+        if (!response.ok) {
+          throw new Error('Failed to fetch posts');
+        }
+        const data = await response.json();
+        setPosts(data);
       } catch (error) {
         console.error('Error loading feed:', error);
       } finally {
