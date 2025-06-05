@@ -42,9 +42,19 @@ export async function POST(req: Request) {
 
     return NextResponse.json(userWithoutPassword);
   } catch (error) {
-    console.error('Registration error:', error);
+    // Enhanced error logging
+    console.error('Registration error details:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : 'Unknown error type'
+    });
+    
     return NextResponse.json(
-      { error: 'Error creating user' },
+      { 
+        error: 'Error creating user',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
