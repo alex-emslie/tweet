@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -43,10 +45,9 @@ export async function GET(request: Request) {
     const transformedPosts = posts.map(post => ({
       id: post.id,
       author: {
-        id: post.author.id,
         name: post.author.name || '',
-        email: post.author.email || '',
-        image: post.author.image || '',
+        handle: post.author.email?.split('@')[0] || '',
+        avatar: post.author.image || 'https://api.dicebear.com/7.x/avataaars/svg?seed=You'
       },
       content: post.content,
       createdAt: post.createdAt.toISOString(),
@@ -54,10 +55,9 @@ export async function GET(request: Request) {
       replies: post.replies.map(reply => ({
         id: reply.id,
         author: {
-          id: reply.author.id,
           name: reply.author.name || '',
-          email: reply.author.email || '',
-          image: reply.author.image || '',
+          handle: reply.author.email?.split('@')[0] || '',
+          avatar: reply.author.image || 'https://api.dicebear.com/7.x/avataaars/svg?seed=You'
         },
         content: reply.content,
         createdAt: reply.createdAt.toISOString(),
