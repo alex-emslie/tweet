@@ -6,6 +6,10 @@ import { prisma } from "./lib/prisma";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('NEXTAUTH_SECRET is not set in environment variables');
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma as unknown as PrismaClient),
   providers: [
@@ -44,7 +48,26 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.email = token.email;
+        session.user.name = token.name;
+      }
+      return session;
+    }
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
