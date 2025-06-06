@@ -103,76 +103,117 @@ export default function Tweet(props: TweetProps) {
   );
 
   return (
-    <div className="tweet-main-container p-4">
-      <div className="tweet-content-container flex items-start gap-3">
-        <div className="tweet-avatar-container">
+    <div className="p-4 border-b border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-card transition-colors duration-200">
+      <div className="flex space-x-3">
+        <div className="flex-shrink-0">
           <img
             src={props.author.avatar}
             alt={props.author.name}
-            className="tweet-avatar-image w-10 h-10 rounded-full"
+            className="h-10 w-10 rounded-full"
           />
         </div>
-        <div className="tweet-content-wrapper flex-1">
-          <div className="tweet-header-container flex items-center gap-1">
-            <span className="tweet-author-name font-bold">{props.author.name}</span>
-            <span className="tweet-author-handle text-gray-500">@{props.author.handle}</span>
-            <span className="tweet-timestamp text-gray-500">· {formatDate(props.createdAt)}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center space-x-1">
+            <p className="text-sm font-medium text-gray-900 dark:text-dark-text">
+              {props.author.name}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              @{props.author.handle}
+            </p>
+            <span className="text-gray-500 dark:text-gray-400">·</span>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {formatDate(props.createdAt)}
+            </p>
           </div>
-          <p className="tweet-content-text mt-1">{props.content}</p>
-          <div className="tweet-actions-container flex items-center gap-6 mt-3">
-            {props.showReplyButton && (
-              <button 
-                onClick={() => handleReply()}
-                className="tweet-reply-action-btn flex items-center gap-2 text-gray-500 hover:text-blue-500"
+          <p className="text-sm text-gray-900 dark:text-dark-text mt-1">
+            {props.content}
+          </p>
+          {props.image && (
+            <div className="mt-2">
+              <img
+                src={props.image}
+                alt="Post attachment"
+                className="rounded-lg max-h-96 w-full object-cover"
+              />
+            </div>
+          )}
+          <div className="mt-2 flex items-center space-x-4">
+            <button
+              onClick={handleLike}
+              className={`flex items-center space-x-1 text-sm ${
+                isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'
+              } hover:text-red-500 transition-colors duration-200`}
+            >
+              <svg
+                className="h-5 w-5"
+                fill={isLiked ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg className="tweet-reply-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+              <span>{likes}</span>
+            </button>
+            {props.showReplyButton && (
+              <button
+                onClick={() => handleReply(props.id)}
+                className="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors duration-200"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
                 </svg>
-                <span>Reply</span>
+                <span>{props.replies?.length || 0}</span>
               </button>
             )}
-            <button 
-              onClick={handleLike}
-              className={`tweet-like-action-btn flex items-center gap-2 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
-            >
-              <svg className="tweet-like-icon w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              <span className="tweet-like-count">{likes}</span>
-            </button>
           </div>
         </div>
       </div>
-
       {showReply && !replyingToId && renderReplyForm()}
-
       {replies.length > 0 && (
-        <div className="tweet-replies-container mt-4 pl-12">
+        <div className="ml-12 mt-4 space-y-4">
           {showReplies && replies.map((reply) => (
-            <div key={reply.id} className="tweet-reply-item-container py-3 border-t border-gray-200">
-              <div className="tweet-reply-header-container flex items-center gap-2">
+            <div
+              key={reply.id}
+              className="flex space-x-3 p-3 bg-gray-50 dark:bg-dark-card rounded-lg"
+            >
+              <div className="flex-shrink-0">
                 <img
                   src={reply.author.avatar}
                   alt={reply.author.name}
-                  className="tweet-reply-avatar-image w-8 h-8 rounded-full"
+                  className="h-8 w-8 rounded-full"
                 />
-                <span className="tweet-reply-author-name font-bold">{reply.author.name}</span>
-                <span className="tweet-reply-author-handle text-gray-500">@{reply.author.handle}</span>
-                <span className="tweet-reply-timestamp text-gray-500">· {formatDate(reply.createdAt)}</span>
               </div>
-              <p className="tweet-reply-content-text mt-1">{reply.content}</p>
-              <div className="tweet-reply-actions-container flex items-center gap-6 mt-3">
-                {props.showReplyButton && (
-                  <button 
-                    onClick={() => handleReply(reply.id)}
-                    className="tweet-reply-nested-action-btn flex items-center gap-2 text-gray-500 hover:text-blue-500"
-                  >
-                    <svg className="tweet-reply-nested-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    <span>Reply</span>
-                  </button>
-                )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center space-x-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-dark-text">
+                    {reply.author.name}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    @{reply.author.handle}
+                  </p>
+                  <span className="text-gray-500 dark:text-gray-400">·</span>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {formatDate(reply.createdAt)}
+                  </p>
+                </div>
+                <p className="text-sm text-gray-900 dark:text-dark-text mt-1">
+                  {reply.content}
+                </p>
               </div>
             </div>
           ))}

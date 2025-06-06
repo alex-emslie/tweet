@@ -6,6 +6,7 @@ import Tweet from '../components/Tweet';
 import { PostData } from '../types';
 import { CldUploadWidget } from 'next-cloudinary';
 import { useRouter } from 'next/navigation';
+import { useTheme } from '../components/ThemeProvider';
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
@@ -13,6 +14,7 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<PostData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const loadUserPosts = async () => {
@@ -72,14 +74,20 @@ export default function ProfilePage() {
     }
   };
 
+  const handleThemeToggle = () => {
+    console.log('Profile page theme toggle clicked');
+    console.log('Current theme:', theme);
+    toggleTheme();
+  };
+
   if (status === 'loading' || isLoading) {
     return (
       <div className="max-w-2xl mx-auto p-4">
         <div className="animate-pulse">
-          <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
+          <div className="h-32 bg-gray-200 dark:bg-dark-card rounded-lg mb-4"></div>
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 bg-gray-200 rounded"></div>
+              <div key={i} className="h-24 bg-gray-200 dark:bg-dark-card rounded"></div>
             ))}
           </div>
         </div>
@@ -91,7 +99,7 @@ export default function ProfilePage() {
     return (
       <div className="max-w-2xl mx-auto p-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please sign in to view your profile</h1>
+          <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-dark-text">Please sign in to view your profile</h1>
           <a
             href="/login"
             className="inline-block bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors"
@@ -108,11 +116,11 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-dark-bg">
       <div className="max-w-2xl mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-dark-text">Profile Settings</h1>
         
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-dark-card rounded-lg shadow p-6">
           <div className="flex items-center gap-6 mb-6">
             <div className="relative">
               <img
@@ -158,14 +166,59 @@ export default function ProfilePage() {
               </div>
             </div>
             <div>
-              <h2 className="text-xl font-semibold">{session.user?.name}</h2>
-              <p className="text-gray-500">{session.user?.email}</p>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-text">{session.user?.name}</h2>
+              <p className="text-gray-500 dark:text-gray-400">{session.user?.email}</p>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-200 dark:border-dark-border pt-6">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-dark-text mb-4">Appearance</h3>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">Theme</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Choose your preferred theme</p>
+              </div>
+              <button
+                onClick={handleThemeToggle}
+                className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200"
+                aria-label="Toggle theme"
+              >
+                {theme === 'light' ? (
+                  <svg
+                    className="w-5 h-5 text-gray-800"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-5 h-5 text-yellow-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                )}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-gray-200 dark:divide-dark-border">
         {posts.map((post) => (
           <Tweet
             key={post.id}
@@ -175,7 +228,7 @@ export default function ProfilePage() {
           />
         ))}
         {posts.length === 0 && (
-          <div className="p-4 text-center text-gray-500">
+          <div className="p-4 text-center text-gray-500 dark:text-gray-400">
             No posts yet. Start by creating your first post!
           </div>
         )}

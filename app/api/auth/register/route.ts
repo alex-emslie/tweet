@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/app/lib/prisma';
-import bcrypt from 'bcryptjs';
+import { hash } from 'bcryptjs';
+import { prisma } from '../../../lib/prisma';
 
 export async function POST(req: Request) {
   try {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hash(password, 12);
 
     // Create user
     const user = await prisma.user.create({
@@ -37,10 +37,10 @@ export async function POST(req: Request) {
       },
     });
 
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
-
-    return NextResponse.json(userWithoutPassword);
+    return NextResponse.json(
+      { message: 'User created successfully', user: { id: user.id, name: user.name, email: user.email } },
+      { status: 201 }
+    );
   } catch (error) {
     // Enhanced error logging
     console.error('Registration error details:', {

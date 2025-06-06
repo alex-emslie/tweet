@@ -1,40 +1,35 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/app/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/auth';
+import { authOptions } from '../../auth';
+import { prisma } from '../../lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
 
     const posts = await prisma.post.findMany({
-      where: userId ? {
-        authorId: userId,
-      } : undefined,
+      where: userId ? { authorId: userId } : undefined,
       include: {
         author: {
           select: {
             id: true,
             name: true,
-            email: true,
             image: true,
           },
         },
         likes: true,
-        replies: {
+        comments: {
           include: {
             author: {
               select: {
                 id: true,
                 name: true,
-                email: true,
                 image: true,
               },
             },
-            likes: true,
           },
         },
       },
@@ -43,31 +38,7 @@ export async function GET(request: Request) {
       },
     });
 
-    // Transform the data to match the PostData interface
-    const transformedPosts = posts.map(post => ({
-      id: post.id,
-      author: {
-        name: post.author.name || '',
-        handle: post.author.email?.split('@')[0] || '',
-        avatar: post.author.image || 'https://res.cloudinary.com/dnqygbued/image/upload/v1/tweet_avatars/default-avatar.png'
-      },
-      content: post.content,
-      createdAt: post.createdAt.toISOString(),
-      likes: post.likes.length,
-      replies: post.replies.map(reply => ({
-        id: reply.id,
-        author: {
-          name: reply.author.name || '',
-          handle: reply.author.email?.split('@')[0] || '',
-          avatar: reply.author.image || 'https://res.cloudinary.com/dnqygbued/image/upload/v1/tweet_avatars/default-avatar.png'
-        },
-        content: reply.content,
-        createdAt: reply.createdAt.toISOString(),
-        likes: reply.likes.length,
-      })),
-    }));
-
-    return NextResponse.json(transformedPosts);
+    return NextResponse.json(posts);
   } catch (error) {
     console.error('Error fetching posts:', error);
     return NextResponse.json(
@@ -77,9 +48,10 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -87,8 +59,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const { content } = await request.json();
-    if (!content?.trim()) {
+    const { content } = await req.json();
+
+    if (!content) {
       return NextResponse.json(
         { error: 'Content is required' },
         { status: 400 }
@@ -97,7 +70,7 @@ export async function POST(request: Request) {
 
     const post = await prisma.post.create({
       data: {
-        content: content.trim(),
+        content,
         authorId: session.user.id,
       },
       include: {
@@ -105,52 +78,25 @@ export async function POST(request: Request) {
           select: {
             id: true,
             name: true,
-            email: true,
             image: true,
           },
         },
         likes: true,
-        replies: {
+        comments: {
           include: {
             author: {
               select: {
                 id: true,
                 name: true,
-                email: true,
                 image: true,
               },
             },
-            likes: true,
           },
         },
       },
     });
 
-    // Transform the data to match the PostData interface
-    const transformedPost = {
-      id: post.id,
-      author: {
-        name: post.author.name || '',
-        handle: post.author.email?.split('@')[0] || '',
-        avatar: post.author.image || 'https://res.cloudinary.com/dnqygbued/image/upload/v1/tweet_avatars/default-avatar.png'
-      },
-      content: post.content,
-      createdAt: post.createdAt.toISOString(),
-      likes: post.likes.length,
-      replies: post.replies.map(reply => ({
-        id: reply.id,
-        author: {
-          name: reply.author.name || '',
-          handle: reply.author.email?.split('@')[0] || '',
-          avatar: reply.author.image || 'https://res.cloudinary.com/dnqygbued/image/upload/v1/tweet_avatars/default-avatar.png'
-        },
-        content: reply.content,
-        createdAt: reply.createdAt.toISOString(),
-        likes: reply.likes.length,
-      })),
-    };
-
-    return NextResponse.json(transformedPost);
+    return NextResponse.json(post);
   } catch (error) {
     console.error('Error creating post:', error);
     return NextResponse.json(
