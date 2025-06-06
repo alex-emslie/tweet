@@ -26,13 +26,14 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        throw new Error(result.error);
+        setError('Invalid email or password');
+        return;
       }
 
       router.push('/');
       router.refresh();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Something went wrong');
+      setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }

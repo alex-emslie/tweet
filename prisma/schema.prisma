@@ -25,6 +25,7 @@ model User {
   sessions      Session[]
   posts         Post[]
   likes         Like[]
+  comments      Comment[]
   followers     Follow[]  @relation("following")
   following     Follow[]  @relation("followers")
 }
@@ -65,15 +66,26 @@ model VerificationToken {
 }
 
 model Post {
+  id        String    @id @default(cuid())
+  content   String
+  createdAt DateTime  @default(now())
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  likes     Like[]
+  comments  Comment[]
+  replies   Post[]    @relation("PostToReply")
+  replyTo   Post?     @relation("PostToReply", fields: [replyToId], references: [id])
+  replyToId String?
+}
+
+model Comment {
   id        String   @id @default(cuid())
   content   String
   createdAt DateTime @default(now())
+  postId    String
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
-  likes     Like[]
-  replies   Post[]   @relation("PostToReply")
-  replyTo   Post?    @relation("PostToReply", fields: [replyToId], references: [id])
-  replyToId String?
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model Like {

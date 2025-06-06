@@ -1,17 +1,19 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
-import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./lib/prisma";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
 
 if (!process.env.NEXTAUTH_SECRET) {
   throw new Error('NEXTAUTH_SECRET is not set in environment variables');
 }
 
+if (!process.env.NEXTAUTH_URL) {
+  throw new Error('NEXTAUTH_URL is not set in environment variables');
+}
+
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma as unknown as PrismaClient),
+  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -21,7 +23,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Invalid credentials');
+          return null;
         }
 
         const user = await prisma.user.findUnique({
@@ -31,7 +33,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user?.password) {
-          throw new Error('Invalid credentials');
+          return null;
         }
 
         const isCorrectPassword = await bcrypt.compare(
@@ -40,16 +42,23 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isCorrectPassword) {
-          throw new Error('Invalid credentials');
+          return null;
         }
 
-        return user;
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
       }
     })
   ],
+  pages: {
+    signIn: '/login',
+  },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -57,6 +66,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+        token.picture = user.image;
       }
       return token;
     },
@@ -65,17 +75,10 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.email = token.email;
         session.user.name = token.name;
+        session.user.image = token.picture as string;
       }
       return session;
     }
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
-  pages: {
-    signIn: '/login',
-  },
-};
-
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST }; 
+}; 
