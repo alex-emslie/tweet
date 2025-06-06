@@ -1,8 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { config } from 'dotenv';
-
-// Load environment variables from .env.local
-config({ path: '.env.local' });
 
 const prismaClientSingleton = () => {
   return new PrismaClient();
