@@ -49,7 +49,7 @@ export async function GET(request: Request) {
       author: {
         name: post.author.name || '',
         handle: post.author.email?.split('@')[0] || '',
-        avatar: post.author.image || 'https://api.dicebear.com/7.x/avataaars/svg?seed=You'
+        avatar: post.author.image || 'https://res.cloudinary.com/dnqygbued/image/upload/v1/tweet_avatars/default-avatar.png'
       },
       content: post.content,
       createdAt: post.createdAt.toISOString(),
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
         author: {
           name: reply.author.name || '',
           handle: reply.author.email?.split('@')[0] || '',
-          avatar: reply.author.image || 'https://api.dicebear.com/7.x/avataaars/svg?seed=You'
+          avatar: reply.author.image || 'https://res.cloudinary.com/dnqygbued/image/upload/v1/tweet_avatars/default-avatar.png'
         },
         content: reply.content,
         createdAt: reply.createdAt.toISOString(),
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
       author: {
         name: post.author.name || '',
         handle: post.author.email?.split('@')[0] || '',
-        avatar: post.author.image || 'https://api.dicebear.com/7.x/avataaars/svg?seed=You'
+        avatar: post.author.image || 'https://res.cloudinary.com/dnqygbued/image/upload/v1/tweet_avatars/default-avatar.png'
       },
       content: post.content,
       createdAt: post.createdAt.toISOString(),
@@ -142,7 +142,7 @@ export async function POST(request: Request) {
         author: {
           name: reply.author.name || '',
           handle: reply.author.email?.split('@')[0] || '',
-          avatar: reply.author.image || 'https://api.dicebear.com/7.x/avataaars/svg?seed=You'
+          avatar: reply.author.image || 'https://res.cloudinary.com/dnqygbued/image/upload/v1/tweet_avatars/default-avatar.png'
         },
         content: reply.content,
         createdAt: reply.createdAt.toISOString(),

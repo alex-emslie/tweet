@@ -27,6 +27,10 @@ export default function Tweet(props: TweetProps) {
   const [likes, setLikes] = useState(props.likes || 0);
   const [showReplies, setShowReplies] = useState(true);
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState({
+    name: session?.user?.name || 'Anonymous',
+    avatar: session?.user?.image || 'https://res.cloudinary.com/dnqygbued/image/upload/tweet_avatars/default-avatar.png'
+  });
 
   const handleReply = (replyId?: string) => {
     if (props.currentUserId) {
@@ -45,7 +49,7 @@ export default function Tweet(props: TweetProps) {
           author: {
             name: session?.user?.name || 'You',
             handle: session?.user?.email?.split('@')[0] || 'you',
-            avatar: session?.user?.image || 'https://api.dicebear.com/7.x/avataaars/svg?seed=You'
+            avatar: session?.user?.image || 'https://res.cloudinary.com/dnqygbued/image/upload/tweet_avatars/default-avatar.png'
           },
           content: replyText,
           createdAt: new Date().toISOString(),
@@ -69,28 +73,28 @@ export default function Tweet(props: TweetProps) {
   };
 
   const renderReplyForm = (isNested: boolean = false) => (
-    <div className={`tweet-reply-form mt-4 ${isNested ? '' : 'ml-12'}`}>
+    <div className={`tweet-reply-form-container mt-4 ${isNested ? '' : 'ml-12'}`}>
       <textarea
         value={replyText}
         onChange={(e) => setReplyText(e.target.value)}
         placeholder="Write your reply..."
-        className="tweet-reply-textarea w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="tweet-reply-form-textarea w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         rows={3}
       />
-      <div className="tweet-reply-actions flex justify-end gap-2 mt-2">
+      <div className="tweet-reply-form-actions flex justify-end gap-2 mt-2">
         <button
           onClick={() => {
             setShowReply(false);
             setReplyingToId(null);
           }}
-          className="tweet-reply-cancel-btn px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+          className="tweet-reply-form-cancel-btn px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
         >
           Cancel
         </button>
         <button
           onClick={handleSubmitReply}
           disabled={!replyText.trim()}
-          className="tweet-reply-submit-btn px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="tweet-reply-form-submit-btn px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Reply
         </button>
@@ -99,29 +103,29 @@ export default function Tweet(props: TweetProps) {
   );
 
   return (
-    <div className="tweet-container p-4">
-      <div className="tweet-header flex items-start gap-3">
-        <div className="tweet-avatar">
+    <div className="tweet-main-container p-4">
+      <div className="tweet-content-container flex items-start gap-3">
+        <div className="tweet-avatar-container">
           <img
             src={props.author.avatar}
             alt={props.author.name}
-            className="w-10 h-10 rounded-full"
+            className="tweet-avatar-image w-10 h-10 rounded-full"
           />
         </div>
-        <div className="tweet-content flex-1">
-          <div className="tweet-author-info flex items-center gap-1">
+        <div className="tweet-content-wrapper flex-1">
+          <div className="tweet-header-container flex items-center gap-1">
             <span className="tweet-author-name font-bold">{props.author.name}</span>
             <span className="tweet-author-handle text-gray-500">@{props.author.handle}</span>
             <span className="tweet-timestamp text-gray-500">· {formatDate(props.createdAt)}</span>
           </div>
-          <p className="tweet-text mt-1">{props.content}</p>
-          <div className="tweet-actions flex items-center gap-6 mt-3">
+          <p className="tweet-content-text mt-1">{props.content}</p>
+          <div className="tweet-actions-container flex items-center gap-6 mt-3">
             {props.showReplyButton && (
               <button 
                 onClick={() => handleReply()}
-                className="tweet-reply-button flex items-center gap-2 text-gray-500 hover:text-blue-500"
+                className="tweet-reply-action-btn flex items-center gap-2 text-gray-500 hover:text-blue-500"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="tweet-reply-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 <span>Reply</span>
@@ -129,12 +133,12 @@ export default function Tweet(props: TweetProps) {
             )}
             <button 
               onClick={handleLike}
-              className={`tweet-like-button flex items-center gap-2 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
+              className={`tweet-like-action-btn flex items-center gap-2 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
             >
-              <svg className="w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="tweet-like-icon w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
-              <span>{likes}</span>
+              <span className="tweet-like-count">{likes}</span>
             </button>
           </div>
         </div>
@@ -143,27 +147,27 @@ export default function Tweet(props: TweetProps) {
       {showReply && !replyingToId && renderReplyForm()}
 
       {replies.length > 0 && (
-        <div className="tweet-replies mt-4 pl-12">
+        <div className="tweet-replies-container mt-4 pl-12">
           {showReplies && replies.map((reply) => (
-            <div key={reply.id} className="tweet-reply-item py-3 border-t border-gray-200">
-              <div className="tweet-reply-header flex items-center gap-2">
+            <div key={reply.id} className="tweet-reply-item-container py-3 border-t border-gray-200">
+              <div className="tweet-reply-header-container flex items-center gap-2">
                 <img
                   src={reply.author.avatar}
                   alt={reply.author.name}
-                  className="tweet-reply-avatar w-8 h-8 rounded-full"
+                  className="tweet-reply-avatar-image w-8 h-8 rounded-full"
                 />
-                <span className="tweet-reply-author font-bold">{reply.author.name}</span>
-                <span className="tweet-reply-handle text-gray-500">@{reply.author.handle}</span>
+                <span className="tweet-reply-author-name font-bold">{reply.author.name}</span>
+                <span className="tweet-reply-author-handle text-gray-500">@{reply.author.handle}</span>
                 <span className="tweet-reply-timestamp text-gray-500">· {formatDate(reply.createdAt)}</span>
               </div>
-              <p className="tweet-reply-content mt-1">{reply.content}</p>
-              <div className="tweet-reply-actions flex items-center gap-6 mt-3">
+              <p className="tweet-reply-content-text mt-1">{reply.content}</p>
+              <div className="tweet-reply-actions-container flex items-center gap-6 mt-3">
                 {props.showReplyButton && (
                   <button 
                     onClick={() => handleReply(reply.id)}
-                    className="tweet-reply-button flex items-center gap-2 text-gray-500 hover:text-blue-500"
+                    className="tweet-reply-nested-action-btn flex items-center gap-2 text-gray-500 hover:text-blue-500"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="tweet-reply-nested-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                     <span>Reply</span>

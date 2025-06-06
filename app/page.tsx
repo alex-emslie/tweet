@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <main className="max-w-2xl mx-auto w-fit">
+      <main className="max-w-2xl mx-auto w-full">
         <Feed />
       </main>
     </div>
