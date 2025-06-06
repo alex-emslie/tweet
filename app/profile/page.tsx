@@ -103,6 +103,10 @@ export default function ProfilePage() {
     );
   }
 
+  if (!session) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-2xl mx-auto p-4">
@@ -112,7 +116,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-6 mb-6">
             <div className="relative">
               <img
-                src={session.user?.image || 'https://res.cloudinary.com/dnqygbued/image/upload/v1/tweet_avatars/default-avatar.png'}
+                src={session.user?.image || 'https://res.cloudinary.com/dnqygbued/image/upload/tweet_avatars/default-avatar.png'}
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover"
               />
@@ -167,7 +171,7 @@ export default function ProfilePage() {
             key={post.id}
             {...post}
             showReplyButton={true}
-            currentUserId={session?.user?.id}
+            currentUserId={session.user?.id}
           />
         ))}
         {posts.length === 0 && (
