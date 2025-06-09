@@ -1,31 +1,68 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { Session } from 'next-auth';
 
-export default function ProfileSection({ session }: { session: any }) {
-  return (
-    <div className="flex items-center gap-4">
-      {session ? (
-        <Link
-          href="/profile"
-          className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-        >
-          <img
-            src={session.user?.image || 'https://res.cloudinary.com/dnqygbued/image/upload/tweet_avatars/default-avatar.png'}
-            alt={session.user?.name || 'Profile'}
-            className="w-8 h-8 rounded-full"
-          />
-          <span className="hidden sm:inline">{session.user?.name}</span>
-        </Link>
-      ) : (
+interface ProfileSectionProps {
+  session: Session | null;
+}
+
+export default function ProfileSection({ session: serverSession }: ProfileSectionProps) {
+  const { data: clientSession } = useSession();
+  const currentSession = clientSession || serverSession;
+
+  if (!currentSession?.user) {
+    return (
+      <div className="flex items-center gap-4">
         <Link
           href="/login"
           className="text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
         >
-          Sign In
+          Log in
         </Link>
-      )}
+        <Link
+          href="/register"
+          className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+        >
+          Sign up
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-4">
+      <Link
+        href="/create"
+        className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+      >
+        Create Tweet
+      </Link>
+      <div className="relative group">
+        <button className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
+          <img
+            src={currentSession.user.image || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentSession.user.email}
+            alt={currentSession.user.name || 'User avatar'}
+            className="w-8 h-8 rounded-full"
+          />
+          <span>{currentSession.user.name}</span>
+        </button>
+        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-card rounded-md shadow-lg py-1 hidden group-hover:block">
+          <Link
+            href={`/profile/${currentSession.user.id}`}
+            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-border"
+          >
+            Profile
+          </Link>
+          <button
+            onClick={() => signOut()}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-border"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
     </div>
   );
 } 
