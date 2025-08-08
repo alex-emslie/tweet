@@ -39,6 +39,12 @@ export default function Tweet(props: TweetProps) {
     }
   };
 
+  const handleTweetClick = () => {
+    if (props.showReplyButton && props.currentUserId) {
+      setShowReply(!showReply);
+    }
+  };
+
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (replyText.trim() && props.currentUserId) {
@@ -103,7 +109,10 @@ export default function Tweet(props: TweetProps) {
   );
 
   return (
-    <div className="p-4 border-b border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-card transition-colors duration-200">
+    <div 
+      className={`p-4 border-b border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-card transition-colors duration-200 cursor-pointer ${showReply ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+      onClick={handleTweetClick}
+    >
       <div className="flex space-x-3">
         <div className="flex-shrink-0">
           <img
@@ -139,7 +148,10 @@ export default function Tweet(props: TweetProps) {
           )}
           <div className="mt-2 flex items-center space-x-4">
             <button
-              onClick={handleLike}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLike();
+              }}
               className={`flex items-center space-x-1 text-sm ${
                 isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'
               } hover:text-red-500 transition-colors duration-200`}
@@ -161,7 +173,10 @@ export default function Tweet(props: TweetProps) {
             </button>
             {props.showReplyButton && (
               <button
-                onClick={() => handleReply(props.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReply(props.id);
+                }}
                 className="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors duration-200"
               >
                 <svg
