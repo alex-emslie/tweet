@@ -124,7 +124,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-6 mb-6">
             <div className="relative">
               <img
-                src={session.user?.image || 'https://res.cloudinary.com/dnqygbued/image/upload/tweet_avatars/default-avatar.png'}
+                src={session.user?.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.user?.email || 'anonymous'}`}
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover"
               />

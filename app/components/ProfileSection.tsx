@@ -33,12 +33,6 @@ export default function ProfileSection({ session: serverSession }: ProfileSectio
 
   return (
     <div className="flex items-center gap-4">
-      <Link
-        href="/create"
-        className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-      >
-        Create Tweet
-      </Link>
       <div className="relative group">
         <button className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
           <img

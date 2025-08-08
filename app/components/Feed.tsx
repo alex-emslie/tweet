@@ -74,7 +74,7 @@ export default function Feed() {
         {[...Array(3)].map((_, i) => (
           <div key={i} className="feed-loading-skeleton p-4 animate-pulse">
             <div className="feed-loading-content flex items-start gap-3">
-              <div className="feed-loading-avatar w-10 h-10 bg-gray-200 rounded-full"></div>
+              <div className="feed-loading-avatar w-5 h-5 bg-gray-200 rounded-full"></div>
               <div className="feed-loading-text flex-1">
                 <div className="feed-loading-name h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
                 <div className="feed-loading-content h-4 bg-gray-200 rounded w-3/4"></div>

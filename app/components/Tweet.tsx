@@ -29,7 +29,7 @@ export default function Tweet(props: TweetProps) {
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState({
     name: session?.user?.name || 'Anonymous',
-    avatar: session?.user?.image || 'https://res.cloudinary.com/dnqygbued/image/upload/tweet_avatars/default-avatar.png'
+    avatar: session?.user?.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session?.user?.email || 'anonymous'}`
   });
 
   const handleReply = (replyId?: string) => {
@@ -49,7 +49,7 @@ export default function Tweet(props: TweetProps) {
           author: {
             name: session?.user?.name || 'You',
             handle: session?.user?.email?.split('@')[0] || 'you',
-            avatar: session?.user?.image || 'https://res.cloudinary.com/dnqygbued/image/upload/tweet_avatars/default-avatar.png'
+            avatar: session?.user?.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session?.user?.email || 'anonymous'}`
           },
           content: replyText,
           createdAt: new Date().toISOString(),
@@ -109,7 +109,7 @@ export default function Tweet(props: TweetProps) {
           <img
             src={props.author.avatar}
             alt={props.author.name}
-            className="h-10 w-10 rounded-full"
+            className="w-5 h-5 rounded-full"
           />
         </div>
         <div className="flex-1 min-w-0">
@@ -195,7 +195,7 @@ export default function Tweet(props: TweetProps) {
                 <img
                   src={reply.author.avatar}
                   alt={reply.author.name}
-                  className="h-8 w-8 rounded-full"
+                  className="w-5 h-5 rounded-full"
                 />
               </div>
               <div className="flex-1 min-w-0">
